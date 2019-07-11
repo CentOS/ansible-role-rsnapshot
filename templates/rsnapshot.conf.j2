@@ -1,0 +1,27 @@
+# This file is configured by Ansible - Don't edit !
+# Commented lines are ignored by the script
+# it needs also TAB between elements
+#
+config_version	1.2
+snapshot_root	{{ rsnapshot_root_dir }}
+cmd_cp		/bin/cp
+cmd_rm		/bin/rm
+cmd_rsync	/usr/bin/rsync
+cmd_ssh	/usr/bin/ssh
+cmd_logger	/usr/bin/logger
+cmd_du		/usr/bin/du
+interval	daily	7
+interval	weekly	4
+interval	monthly	12
+verbose		2
+loglevel	3
+logfile	/var/log/rsnapshot
+lockfile	/var/run/rsnapshot.pid
+rsync_short_args	-avH
+rsync_long_args	--delete --numeric-ids --relative --delete-excluded
+
+# Backups definition/coming from ansible inventory list
+{% for item in rsnapshot_backups -%}
+{{ item.operation }}	{{ item.from }}	{{ item.to }}
+{% endfor %}
+

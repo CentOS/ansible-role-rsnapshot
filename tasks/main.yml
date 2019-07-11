@@ -1,1 +1,52 @@
 # Defaults tasks for role rsnapshot
+
+- name: Installing rsnapshot
+  yum: 
+    name: rsnapshot 
+    state: latest
+
+- name: Ensuring rsnapshot backup root dir exists
+  file: 
+    path: "{{ rsnapshot_root_dir }}" 
+    state: directory 
+    owner: root 
+    group: root 
+    mode: 0750   
+
+- name: Configuring rsnapshot
+  template: 
+    src: rsnapshot.conf.j2 
+    dest: /etc/rsnapshot.conf
+
+- name: Adding rsnap check wrapper script
+  template: 
+    src: rsnap_check.j2 
+    dest: /usr/libexec/centos/rsnap_check
+    mode: 0750
+
+- name: Configuring daily rsnapshot cron jobs
+  cron: 
+    name: "Local Daily Rsnapshot" 
+    hour: "{{ rsnapshot_daily[0].hour }}" 
+    minute: "{{ rsnapshot_daily[0].minute }}"
+    job: "/usr/bin/rsnapshot -v daily > /var/log/rsnap-daily.log 2>&1; /usr/libexec/centos/rsnap_check daily" 
+  when: rsnapshot_daily[0].enabled  
+
+- name: Configuring weekly rsnapshot cron jobs
+  cron: 
+    name: "Local Weekly Rsnapshot"
+    weekday: "sun"
+    hour: "{{ rsnapshot_weekly[0].hour }}" 
+    minute: "{{ rsnapshot_weekly[0].minute }}"
+    job: "/usr/bin/rsnapshot -v weekly > /var/log/rsnap-weekly.log 2>&1; /usr/libexec/centos/rsnap_check weekly" 
+  when: rsnapshot_weekly[0].enabled  
+
+- name: Configuring monthly rsnapshot cron jobs
+  cron: 
+    name: "Local Monthly Rsnapshot" 
+    day: "1"
+    hour: "{{ rsnapshot_monthly[0].hour }}" 
+    minute: "{{ rsnapshot_monthly[0].minute }}"
+    job: "/usr/bin/rsnapshot -v monthly > /var/log/rsnap-monthly.log 2>&1; /usr/libexec/centos/rsnap_check monthly" 
+  when: rsnapshot_monthly[0].enabled  
+

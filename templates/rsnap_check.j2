@@ -1,0 +1,12 @@
+#!/bin/bash
+# Checks the rsnapshot log for current operation [daily,weekly,monthly] and send to zabbix
+backup_job="$1"
+
+egrep -q "$(date +%d/%b/%Y).*/bin/rsnapshot.*${backup_job}.*succes" /var/log/rsnapshot
+
+if [ "$?" -ne "0" ] ;then
+  zabbix_sender -c /etc/zabbix/zabbix_agentd.conf -k rsnapshot.${backup_job} -o 1 >/dev/null
+else
+  zabbix_sender -c /etc/zabbix/zabbix_agentd.conf -k rsnapshot.${backup_job} -o 0 >/dev/null
+fi
+

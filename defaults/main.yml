@@ -1,1 +1,38 @@
 # Defaults variables for role rsnapshot
+
+# Base dir on local filesystem where we'll store rsnapshots
+rsnapshot_root_dir: /backup/rsnapshots
+
+# What to backup
+# Rsnapshot accept backup or backup script (see main website)
+# backup can be done through rsync or ssh (see above)
+#rsnapshot_backups:
+#  - operation: backup_script
+#    from: /usr/bin/ssh  user@node1 "tar cf - /etc/" > etc.tar
+#    to: node1_etc/           
+#  - operation: backup
+#    from: backup@node2:/home/backup/
+#    to: node2/backup    
+#  - operation: backup
+#    from: rsync://node2/backup/
+#    to: node2/backup
+
+rsnapshot_backups:
+  - operation: backup
+    from: /etc/
+    to: localhost/etc
+
+# When to backup
+# weekly = sunday, monthly = 1st day of month
+rsnapshot_daily: 
+  - enabled: True
+    hour: 2
+    minute: 0
+rsnapshot_weekly: 
+  - enabled: True
+    hour: 5
+    minute: 0
+rsnapshot_monthly:
+  - enabled: False
+    hour: 15
+    minute: 0
